@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IRMA AHLUL KHOER</title>
+<style>
+*{margin:0; padding:0; font-family:sans-serif; box-sizing:border-box;}
+body{background:#f5f5f5; line-height:1.6;}
+header{background:#2c5f2d; color:white; padding:20px; text-align:center;}
+main{max-width:800px; margin:20px auto; padding:0 20px;}
+section{background:white; padding:20px; margin-bottom:20px; border-radius:8px; box-shadow:0 2px 4px rgba(0,0,0,0.1);}
+h2{color:#2c5f2d; margin-bottom:15px; border-bottom:2px solid #eee; padding-bottom:8px;}
+table{width:100%; border-collapse:collapse; margin-top:10px;}
+th,td{padding:10px; text-align:left; border-bottom:1px solid #eee;}
+th{background:#f0f0f0;}
+footer{text-align:center; padding:20px; color:#666; font-size:14px;}
+.info{background:#e8f5e9; padding:10px; border-radius:5px; margin-bottom:15px; font-size:14px;}
+</style>
+</head>
+<body>
+
+<header>
+    <h1>🕌 IRMA AHLUL KHOER</h1>
+    <p>Rasamala, Cibadak, Sukamakmur</p>
+</header>
+
+<main>
+    <div class="info">
+        💡 Cara update: Buka Google Sheets → Ubah data → Simpan → Buka web ini → Tekan Refresh 🔄
+    </div>
+
+    <section>
+        <h2>👥 Daftar Anggota</h2>
+        <div id="anggota">Memuat data...</div>
+    </section>
+
+    <section>
+        <h2>📅 Jadwal Kegiatan</h2>
+        <div id="jadwal">Memuat data...</div>
+    </section>
+
+    <section>
+        <h2>💰 Keuangan</h2>
+        <div id="keuangan">Memuat data...</div>
+    </section>
+</main>
+
+<footer>
+    <p>© 2026 IRMA AHLUL KHOER — Semoga berkah 🤲</p>
+</footer>
+
+<script>
+const SHEET_ID = '1CZ2MsgOeCyZYwyFZPP8t4Ew4RjBdcQhtGDTQiV0kKpM';
+const URL = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:json';
+
+fetch(URL)
+.then(r=>r.text())
+.then(t=>{
+    const data = JSON.parse(t.slice(47,-2)).table.rows;
+    
+    // Tampilkan Anggota
+    let htmlA = '<table><tr><th>Nama</th><th>Bidang</th><th>Status</th></tr>';
+    for(let i=2; i<data.length; i++){
+        let n = data[i].c;
+        if(!n || !n[0]) break;
+        htmlA += `<tr><td>${n[0].v||''}</td><td>${n[1]?.v||''}</td><td>${n[2]?.v||''}</td></tr>`;
+    }
+    document.getElementById('anggota').innerHTML = htmlA+'</table>';
+    
+    // Tampilkan Jadwal
+    let htmlJ = '<table><tr><th>Kegiatan</th><th>Hari</th><th>Waktu</th><th>Tempat</th></tr>';
+    for(let i=11; i<data.length; i++){
+        let n = data[i].c;
+        if(!n || !n[0]) break;
+        htmlJ += `<tr><td>${n[0].v||''}</td><td>${n[1]?.v||''}</td><td>${n[2]?.v||''}</td><td>${n[3]?.v||''}</td></tr>`;
+    }
+    document.getElementById('jadwal').innerHTML = htmlJ+'</table>';
+    
+    // Tampilkan Keuangan
+    let htmlK = '<table><tr><th>Keterangan</th><th>Tanggal</th><th>Masuk</th><th>Keluar</th></tr>';
+    let totalM=0, totalK=0;
+    for(let i=21; i<data.length; i++){
+        let n = data[i].c;
+        if(!n || !n[0]) break;
+        let m = n[2]?.n||0, k = n[3]?.n||0;
+        totalM += m; totalK += k;
+        htmlK += `<tr><td>${n[0].v||''}</td><td>${n[1]?.v||''}</td><td>${m?m.toLocaleString('id-ID'):'-'}</td><td>${k?k.toLocaleString('id-ID'):'-'}</td></tr>`;
+    }
+    htmlK += `<tr style="font-weight:bold"><td colspan="2">Total</td><td>${totalM.toLocaleString('id-ID')}</td><td>${totalK.toLocaleString('id-ID')}</td></tr>`;
+    htmlK += `<tr style="font-weight:bold; background:#e8f5e9"><td colspan="2">Saldo</td><td colspan="2">Rp ${(totalM-totalK).toLocaleString('id-ID')}</td></tr>`;
+    document.getElementById('keuangan').innerHTML = htmlK+'</table>';
+})
+.catch(()=>{
+    document.getElementById('anggota').innerHTML = '⚠️ Pastikan Google Sheets sudah dibagikan ke "Siapa saja yang punya tautan"';
+});
+</script>
+
+</body>
+</html>
